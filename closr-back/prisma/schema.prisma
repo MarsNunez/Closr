@@ -18,6 +18,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   refreshTokens RefreshToken[]
+  posts         Post[]
 }
 
 model RefreshToken {
@@ -35,4 +36,15 @@ enum Role {
   USER
   ADMIN
   CREATOR
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  authorId  String
+
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

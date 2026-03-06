@@ -1,7 +1,7 @@
 import { Router } from "express";
 import {
   createUser,
-  getUser,
+  getMe,
   getUsers,
   loginUser,
   logoutUser,
@@ -19,7 +19,7 @@ const router = Router();
 router.post("/", validate(registerSchema), createUser);
 router.get("/all", authMiddleware, rolesMiddleware("ADMIN"), getUsers);
 router.post("/login", validate(loginSchema), loginUser);
-router.get("/me", authMiddleware, getUser);
+router.get("/me", authMiddleware, getMe);
 router.post("/refresh", refreshAccessToken);
 router.post("/logout", logoutUser);
 
