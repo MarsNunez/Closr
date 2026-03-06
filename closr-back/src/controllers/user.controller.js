@@ -69,9 +69,13 @@ export const loginUser = async (req, res) => {
     }
 
     // 3️⃣ Crear tokens
-    const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const accessToken = jwt.sign(
+      { userId: user.id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      },
+    );
 
     const refreshToken = jwt.sign(
       { userId: user.id },
@@ -123,7 +127,7 @@ export const refreshAccessToken = async (req, res) => {
     const newAccessToken = jwt.sign(
       { userId: decoded.userId },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" },
+      { expiresIn: "15m" },
     );
 
     res.json({ accessToken: newAccessToken });
