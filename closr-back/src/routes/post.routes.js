@@ -10,6 +10,7 @@ import {
 } from "../controllers/post.controller.js";
 import { validate } from "../middlewares/validate.js";
 import { createPostSchema } from "../validations/post.validation.js";
+
 import { likePost, unlikePost } from "../controllers/like.controller.js";
 
 import {
