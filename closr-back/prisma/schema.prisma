@@ -24,6 +24,7 @@ model User {
   posts         Post[]
   likes         Like[]
   comments      Comment[]
+  works         Work[]
 }
 
 model RefreshToken {
@@ -93,4 +94,18 @@ model Comment {
 
   user User @relation(fields: [userId], references: [id])
   post Post @relation(fields: [postId], references: [id])
+}
+
+model Work {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  imageUrl    String
+
+  likes       Int      @default(0)
+
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id])
+
+  createdAt   DateTime @default(now())
 }

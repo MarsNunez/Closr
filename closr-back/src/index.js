@@ -1,6 +1,7 @@
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import followRoutes from "./routes/follow.routes.js";
+import workRoutes from "./routes/work.routes.js";
 
 import express from "express";
 import cors from "cors";
@@ -44,6 +45,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/follows", followRoutes);
+app.use("/api/works", workRoutes);
 
 const PORT = process.env.PORT || 3000;
 
