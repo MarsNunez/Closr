@@ -45,3 +45,42 @@ export const createWork = async (req, res) => {
     });
   }
 };
+
+export const getWorkById = async (req, res) => {
+  try {
+    const { workId } = req.params;
+
+    const work = await prisma.work.findUnique({
+      where: {
+        id: workId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatarUrl: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+    });
+
+    if (!work) {
+      return res.status(404).json({
+        error: "Work not found",
+      });
+    }
+
+    res.json(work);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error getting work",
+    });
+  }
+};
