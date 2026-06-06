@@ -41,7 +41,7 @@ model RefreshToken {
 enum Role {
   USER
   ADMIN
-  CREATOR
+  // CREATOR
 }
 
 model Post {

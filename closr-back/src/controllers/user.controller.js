@@ -22,7 +22,7 @@ export const createUser = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Fehler beim Erstellen des Benutzers" });
+    res.status(500).json({ error: "Error creating user" });
   }
 };
 
@@ -107,7 +107,7 @@ export const loginUser = async (req, res) => {
 };
 
 export const refreshAccessToken = async (req, res) => {
-  // Lo que hace esta función es verificar el refresh token, y si es válido, generar un
+  // Lo que hace esta función es verificar el refresh token y si es válido, generar un
   // nuevo access token cada 15 min (que es el tiempo que el front va a estar llamando
   // a este controller). No se emite un nuevo refresh token, ya que el actual
   // sigue siendo válido hasta su fecha de expiración.

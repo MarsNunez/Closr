@@ -47,7 +47,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/follows", followRoutes);
 app.use("/api/works", workRoutes);
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3001;
 
 app.listen(PORT, () => {
   console.log(`🟢 Die API läuft auf Port: ${PORT}`);
