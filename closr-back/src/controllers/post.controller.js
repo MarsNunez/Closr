@@ -2,28 +2,28 @@ import { prisma } from "../lib/prisma.js";
 
 import cloudinary from "../lib/cloudinary.js";
 
-export const uploadImage = async (req, res) => {
-  try {
-    const file = req.file;
+// export const uploadImage = async (req, res) => {
+//   try {
+//     const file = req.file;
 
-    const result = await cloudinary.uploader.upload_stream(
-      { folder: "closr" },
-      (error, result) => {
-        if (error) {
-          return res.status(500).json({ error });
-        }
+//     const result = await cloudinary.uploader.upload_stream(
+//       { folder: "closr" },
+//       (error, result) => {
+//         if (error) {
+//           return res.status(500).json({ error });
+//         }
 
-        res.json({
-          imageUrl: result.secure_url,
-        });
-      },
-    );
+//         res.json({
+//           imageUrl: result.secure_url,
+//         });
+//       },
+//     );
 
-    result.end(file.buffer);
-  } catch (error) {
-    res.status(500).json({ error: "Upload failed" });
-  }
-};
+//     result.end(file.buffer);
+//   } catch (error) {
+//     res.status(500).json({ error: "Upload failed" });
+//   }
+// };
 
 export const createPost = async (req, res) => {
   try {

@@ -2,29 +2,45 @@ import { prisma } from "../lib/prisma.js";
 
 export const createComment = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { postId } = req.params;
     const { content } = req.body;
 
-    const comment = await prisma.comment.create({
-      data: {
-        content,
-        userId,
-        postId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            avatarUrl: true,
+    const comment = await prisma.$transaction(async (tx) => {
+      const createdComment = await tx.comment.create({
+        data: {
+          content,
+          userId,
+          postId,
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
           },
         },
-      },
+      });
+
+      await tx.post.update({
+        where: { id: postId },
+        data: {
+          commentCount: {
+            increment: 1,
+          },
+        },
+      });
+
+      return createdComment;
     });
 
     res.json(comment);
   } catch (error) {
+    if (error.code === "P2003") {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
     res.status(500).json({ error: "Error creating comment" });
   }
 };
@@ -43,7 +59,6 @@ export const getComments = async (req, res) => {
           select: {
             id: true,
             username: true,
-            avatarUrl: true,
           },
         },
       },
@@ -60,7 +75,7 @@ export const getComments = async (req, res) => {
 
 export const updateComment = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { commentId } = req.params;
     const { content } = req.body;
 
@@ -95,7 +110,7 @@ export const updateComment = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const { commentId } = req.params;
 
     const comment = await prisma.comment.findUnique({
@@ -112,10 +127,21 @@ export const deleteComment = async (req, res) => {
       return res.status(403).json({ error: "Not allowed" });
     }
 
-    await prisma.comment.delete({
-      where: {
-        id: commentId,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.comment.delete({
+        where: {
+          id: commentId,
+        },
+      });
+
+      await tx.post.update({
+        where: { id: comment.postId },
+        data: {
+          commentCount: {
+            decrement: 1,
+          },
+        },
+      });
     });
 
     res.json({ message: "Comment deleted" });

@@ -1,10 +1,10 @@
-import prisma from "../lib/prisma.js";
+import { prisma } from "../lib/prisma.js";
 
 export const getFeed = async (req, res) => {
   try {
     // 👤 Usuario autenticado
     if (req.user) {
-      const currentUserId = req.user.id;
+      const currentUserId = req.user.userId;
 
       const following = await prisma.follow.findMany({
         where: {
@@ -19,15 +19,17 @@ export const getFeed = async (req, res) => {
 
       const posts = await prisma.post.findMany({
         where: {
-          OR: [{ userId: currentUserId }, { userId: { in: followingIds } }],
+          OR: [
+            { authorId: currentUserId },
+            { authorId: { in: followingIds } },
+          ],
         },
 
         include: {
-          user: {
+          author: {
             select: {
               id: true,
               username: true,
-              // avatarUrl: true,
             },
           },
 
@@ -58,13 +60,14 @@ export const getFeed = async (req, res) => {
       const formattedPosts = posts.map((post) => ({
         id: post.id,
         content: post.content,
-        imageUrl: post.imageUrl,
         createdAt: post.createdAt,
 
-        user: post.user,
+        user: post.author,
 
         likesCount: post._count.likes,
         commentsCount: post._count.comments,
+        likeCount: post.likeCount,
+        commentCount: post.commentCount,
 
         likedByMe: post.likes.length > 0,
       }));
@@ -73,14 +76,12 @@ export const getFeed = async (req, res) => {
     }
 
     // 🌍 Usuario no autenticado → feed global
-
     const posts = await prisma.post.findMany({
       include: {
-        user: {
+        author: {
           select: {
             id: true,
             username: true,
-            avatarUrl: true,
           },
         },
 
@@ -102,13 +103,14 @@ export const getFeed = async (req, res) => {
     const formattedPosts = posts.map((post) => ({
       id: post.id,
       content: post.content,
-      imageUrl: post.imageUrl,
       createdAt: post.createdAt,
 
-      user: post.user,
+      user: post.author,
 
       likesCount: post._count.likes,
       commentsCount: post._count.comments,
+      likeCount: post.likeCount,
+      commentCount: post.commentCount,
     }));
 
     res.json(formattedPosts);

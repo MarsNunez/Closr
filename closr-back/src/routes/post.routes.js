@@ -1,5 +1,8 @@
 import express from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import {
+  authMiddleware,
+  rolesMiddleware,
+} from "../middlewares/auth.middleware.js";
 import {
   createPost,
   deletePost,
@@ -21,13 +24,13 @@ import {
 } from "../controllers/comment.controller.js";
 
 import upload from "../middlewares/upload.js";
-import { uploadImage } from "../controllers/post.controller.js";
+// import { uploadImage } from "../controllers/post.controller.js";
 
 const router = express.Router();
 
 router.post("/", validate(createPostSchema), authMiddleware, createPost);
 router.get("/", getPosts);
-router.post("/upload", authMiddleware, upload.single("image"), uploadImage);
+// router.post("/upload", authMiddleware, upload.single("image"), uploadImage);
 router.get("/user/:userId", getPostsByUser);
 router.get("/:id", getPostById);
 router.patch("/:id", authMiddleware, updatePost);

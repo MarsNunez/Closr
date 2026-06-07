@@ -28,7 +28,17 @@ export const createUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany();
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
     res.json(users);
   } catch (error) {
     console.error(error);
@@ -130,9 +140,29 @@ export const refreshAccessToken = async (req, res) => {
       return res.status(403).json({ error: "Refresh token inválido" });
     }
 
+    if (storedToken.expiresAt < new Date()) {
+      await prisma.refreshToken.delete({
+        where: { token: refreshToken },
+      });
+
+      return res.status(403).json({ error: "Refresh token expirado" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(403).json({ error: "Usuario no encontrado" });
+    }
+
     // Generar nuevo access token
     const newAccessToken = jwt.sign(
-      { userId: decoded.userId },
+      { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
       { expiresIn: "15m" },
     );

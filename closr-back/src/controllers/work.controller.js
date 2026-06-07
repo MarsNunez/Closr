@@ -59,13 +59,6 @@ export const getWorkById = async (req, res) => {
           select: {
             id: true,
             username: true,
-            avatarUrl: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
           },
         },
       },
