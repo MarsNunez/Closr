@@ -8,6 +8,9 @@ const SEED_PASSWORD = "password123";
 
 async function reset() {
   console.log("🧹 Limpiando base de datos…");
+  await prisma.workComment.deleteMany();
+  await prisma.workSave.deleteMany();
+  await prisma.workLike.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
   await prisma.post.deleteMany();
@@ -46,78 +49,103 @@ async function createWorks(users) {
       username: "ana.studio",
       title: "Aurora quieta",
       description: "Estudio de color con luz suave y composición limpia.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 800,
     },
     {
       username: "ana.studio",
       title: "Marea lenta",
       description: "Fotografía tranquila con líneas amplias.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 900,
     },
     {
       username: "milo.frames",
       title: "Habitación al sol",
       description: "Escena minimalista para probar tonos cálidos.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 750,
     },
     {
       username: "milo.frames",
       title: "Still life 03",
       description: "Objetos cotidianos como pequeña galería.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 1600,
     },
     {
       username: "luna.color",
       title: "Bloom studies",
       description: "Serie de texturas naturales y contraste bajo.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 1800,
     },
     {
       username: "luna.color",
       title: "Niebla rosa",
       description: "Paisaje suave para una portada editorial.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 800,
     },
     {
       username: "diego.beats",
       title: "Sesión 04 — Nocturno",
       description: "Captura del set en vivo en la sesión de noviembre.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 675,
     },
     {
       username: "sofia.lens",
       title: "Retratos de calle",
       description: "Serie documental tomada en blanco y negro.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 1500,
     },
     {
       username: "sofia.lens",
       title: "Ciudad despierta",
       description: "Líneas urbanas al amanecer.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=82",
+      imageUrl: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 800,
+    },
+    {
+      username: "ana.studio",
+      title: "Vacío azul",
+      description: "Exploración de espacio negativo y textura.",
+      imageUrl: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 1600,
+    },
+    {
+      username: "milo.frames",
+      title: "Luz de mañana",
+      description: "La primera hora del día como sujeto fotográfico.",
+      imageUrl: "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 900,
+    },
+    {
+      username: "luna.color",
+      title: "Texturas III",
+      description: "Primer plano de superficies cotidianas.",
+      imageUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=82",
+      imageWidth: 1200, imageHeight: 1800,
     },
   ];
 
+  const works = {};
   for (const item of items) {
-    await prisma.work.create({
+    const work = await prisma.work.create({
       data: {
         title: item.title,
         description: item.description,
         imageUrl: item.imageUrl,
-        likes: Math.floor(Math.random() * 120),
+        imageWidth: item.imageWidth,
+        imageHeight: item.imageHeight,
         authorId: users[item.username].id,
       },
     });
+    works[work.id] = work;
   }
+  return works;
 }
 
 async function createPosts(users) {
@@ -203,6 +231,64 @@ async function createFollows(users) {
   }
 }
 
+async function createWorkInteractions(users, works) {
+  console.log("🖤  Creando likes/saves/comentarios en works…");
+
+  const workIds = Object.keys(works);
+  const usernames = Object.keys(users);
+  const workCommentSamples = [
+    "Me encanta cómo trabajas la luz.",
+    "Increíble composición 🔥",
+    "¿Qué cámara usas para esto?",
+    "El color es perfecto.",
+    "Quiero ver más de esta serie.",
+  ];
+
+  for (const workId of workIds) {
+    const work = works[workId];
+
+    // Random subset of users likes this work (excluding the author)
+    const likers = usernames
+      .filter((u) => users[u].id !== work.authorId)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 1 + Math.floor(Math.random() * 3));
+
+    for (const username of likers) {
+      await prisma.$transaction(async (tx) => {
+        await tx.workLike.create({ data: { userId: users[username].id, workId } });
+        await tx.work.update({ where: { id: workId }, data: { likeCount: { increment: 1 } } });
+      });
+    }
+
+    // Random subset saves
+    const savers = usernames
+      .filter((u) => users[u].id !== work.authorId)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.floor(Math.random() * 2));
+
+    for (const username of savers) {
+      await prisma.$transaction(async (tx) => {
+        await tx.workSave.create({ data: { userId: users[username].id, workId } });
+        await tx.work.update({ where: { id: workId }, data: { saveCount: { increment: 1 } } });
+      });
+    }
+
+    // Random comment
+    const commenters = usernames
+      .filter((u) => users[u].id !== work.authorId)
+      .sort(() => Math.random() - 0.5)
+      .slice(0, Math.floor(Math.random() * 2));
+
+    for (const username of commenters) {
+      const content = workCommentSamples[Math.floor(Math.random() * workCommentSamples.length)];
+      await prisma.$transaction(async (tx) => {
+        await tx.workComment.create({ data: { content, userId: users[username].id, workId } });
+        await tx.work.update({ where: { id: workId }, data: { commentCount: { increment: 1 } } });
+      });
+    }
+  }
+}
+
 async function createLikesAndComments(users, posts) {
   console.log("❤️  Creando likes y comentarios…");
 
@@ -264,10 +350,11 @@ async function main() {
 
   await reset();
   const users = await createUsers();
-  await createWorks(users);
+  const works = await createWorks(users);
   const posts = await createPosts(users);
   await createFollows(users);
   await createLikesAndComments(users, posts);
+  await createWorkInteractions(users, works);
 
   console.log("\n✅ Seed completado!\n");
   console.log("👤 Cuentas de prueba (contraseña: password123):");

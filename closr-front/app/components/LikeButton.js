@@ -45,7 +45,7 @@ export function LikeButton({ postId, initialLiked = false, initialCount = 0 }) {
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-sm transition-colors",
         liked
-          ? "text-red-600"
+          ? "text-brand-600 dark:text-brand-400"
           : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
       aria-pressed={liked}

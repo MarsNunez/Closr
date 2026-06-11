@@ -8,6 +8,7 @@ import {
   logoutUser,
   refreshAccessToken,
 } from "../controllers/user.controller.js";
+import { getSavedWorks } from "../controllers/workInteraction.controller.js";
 import {
   authMiddleware,
   rolesMiddleware,
@@ -23,6 +24,7 @@ router.post("/login", validate(loginSchema), loginUser);
 router.get("/me", authMiddleware, getMe);
 router.post("/refresh", refreshAccessToken);
 router.post("/logout", logoutUser);
+router.get("/:userId/saved", authMiddleware, getSavedWorks);
 router.get("/:userId", getUserById);
 
 export default router;

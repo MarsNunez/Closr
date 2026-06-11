@@ -12,18 +12,15 @@ export function PostCard({ post, asLink = true, className }) {
   return (
     <article
       className={cn(
-        "group rounded-2xl border border-[color:var(--border)] bg-card p-5 transition-colors hover:border-foreground/30",
+        "group rounded-2xl border border-[color:var(--border)] bg-card p-5 transition-colors hover:border-brand-200 dark:hover:border-brand-800",
         className,
       )}
     >
       <header className="mb-3 flex items-center gap-3">
-        <Link
-          href={author ? `/u/${author.id}` : "#"}
-          className="flex items-center gap-3"
-        >
+        <Link href={author ? `/u/${author.id}` : "#"} className="flex items-center gap-3">
           <Avatar username={author?.username} size="sm" />
           <div>
-            <p className="text-sm font-semibold text-foreground hover:underline">
+            <p className="text-sm font-semibold hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
               {author?.username ?? "Anónimo"}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -65,17 +62,7 @@ export function PostCard({ post, asLink = true, className }) {
 
 function CommentIcon() {
   return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </svg>
   );

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Container } from "../components/Container";
 import { PostCard } from "../components/PostCard";
+import { PostComposer } from "../components/PostComposer";
 import { EmptyState } from "../components/EmptyState";
 import { Button } from "../components/Button";
 import { apiRequest } from "../lib/api";
@@ -48,22 +49,24 @@ export default function FeedPage() {
         setPosts([]);
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [tab, status]);
+
+  const handlePosted = (newPost) => {
+    setPosts((current) =>
+      current ? [newPost, ...current] : [newPost],
+    );
+  };
 
   const showLoginCta = tab === "following" && status === "unauthenticated";
 
   return (
-    <Container size="md" className="py-12 sm:py-16">
-      <header className="mb-6">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-          Feed
-        </h1>
-      </header>
+    <Container size="md" className="py-8 sm:py-12">
+      {/* Post composer */}
+      <PostComposer onPosted={handlePosted} />
 
-      <div className="mb-6 flex border-b border-[color:var(--border)]">
+      {/* Tabs */}
+      <div className="mt-6 flex border-b border-[color:var(--border)]">
         {TABS.map((item) => {
           const isActive = tab === item.id;
           return (
@@ -79,54 +82,52 @@ export default function FeedPage() {
               )}
             >
               {item.label}
-              {isActive ? (
-                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-foreground" />
-              ) : null}
+              {isActive && (
+                <span className="absolute inset-x-3 -bottom-px h-0.5 rounded-full bg-brand-500" />
+              )}
             </button>
           );
         })}
       </div>
 
-      {showLoginCta ? (
-        <EmptyState
-          title="Inicia sesión para ver lo de tus seguidos"
-          description="Sigue a tus creadores favoritos y revisa aquí lo que publican."
-          action={<Button onClick={() => openAuthModal("login")}>Entrar</Button>}
-        />
-      ) : error ? (
-        <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
-          {error}
-        </p>
-      ) : posts === null ? (
-        <FeedSkeleton />
-      ) : posts.length === 0 ? (
-        <EmptyState
-          title={
-            tab === "following"
-              ? "Tu feed de seguidos está vacío"
-              : "Aún no hay posts"
-          }
-          description={
-            tab === "following"
-              ? "Empieza a seguir creadores para ver su actividad aquí."
-              : "Vuelve pronto, los creadores están preparando contenido."
-          }
-          action={
-            <Link
-              href="/explore"
-              className="text-sm font-medium text-foreground underline"
-            >
-              Explorar creadores
-            </Link>
-          }
-        />
-      ) : (
-        <div className="flex flex-col gap-4">
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
-        </div>
-      )}
+      {/* Content */}
+      <div className="mt-5">
+        {showLoginCta ? (
+          <EmptyState
+            title="Inicia sesión para ver lo de tus seguidos"
+            description="Sigue a tus creadores favoritos y revisa aquí lo que publican."
+            action={<Button onClick={() => openAuthModal("login")}>Entrar</Button>}
+          />
+        ) : error ? (
+          <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-400">
+            {error}
+          </p>
+        ) : posts === null ? (
+          <FeedSkeleton />
+        ) : posts.length === 0 ? (
+          <EmptyState
+            title={tab === "following" ? "Tu feed de seguidos está vacío" : "Aún no hay posts"}
+            description={
+              tab === "following"
+                ? "Empieza a seguir creadores para ver su actividad aquí."
+                : "Sé el primero en publicar algo."
+            }
+            action={
+              tab === "for-you" ? null : (
+                <Link href="/explore" className="text-sm font-medium text-foreground underline">
+                  Explorar creadores
+                </Link>
+              )
+            }
+          />
+        ) : (
+          <div className="flex flex-col gap-4">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+        )}
+      </div>
     </Container>
   );
 }

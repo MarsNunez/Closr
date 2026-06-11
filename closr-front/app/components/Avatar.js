@@ -15,14 +15,14 @@ function colorFromString(seed = "") {
     hash = seed.charCodeAt(i) + ((hash << 5) - hash);
   }
   const hue = Math.abs(hash) % 360;
-  return `hsl(${hue} 70% 55%)`;
+  return `hsl(${hue} 50% 45%)`;
 }
 
 export function Avatar({ username, size = "md", className }) {
   return (
     <span
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold text-white",
+        "inline-flex shrink-0 select-none items-center justify-center rounded-full font-semibold text-white",
         sizes[size],
         className,
       )}
