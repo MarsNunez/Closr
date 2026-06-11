@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/post.routes.js";
 import followRoutes from "./routes/follow.routes.js";
@@ -6,12 +8,9 @@ import feedRoutes from "./routes/feed.routes.js";
 
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 
 import cron from "node-cron";
 import { prisma } from "./lib/prisma.js";
-
-dotenv.config();
 
 const app = express();
 

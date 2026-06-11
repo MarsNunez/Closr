@@ -46,6 +46,30 @@ export const createWork = async (req, res) => {
   }
 };
 
+export const getWorks = async (req, res) => {
+  try {
+    const works = await prisma.work.findMany({
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.json(works);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error getting works",
+    });
+  }
+};
+
 export const getWorkById = async (req, res) => {
   try {
     const { workId } = req.params;
@@ -74,6 +98,35 @@ export const getWorkById = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       error: "Error getting work",
+    });
+  }
+};
+
+export const getWorksByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const works = await prisma.work.findMany({
+      where: {
+        authorId: userId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.json(works);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error getting user works",
     });
   }
 };

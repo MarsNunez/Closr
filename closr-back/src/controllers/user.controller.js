@@ -65,6 +65,38 @@ export const getMe = async (req, res) => {
   }
 };
 
+export const getUserById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        createdAt: true,
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+            posts: true,
+            works: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: "Error getting user" });
+  }
+};
+
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -74,15 +106,18 @@ export const loginUser = async (req, res) => {
       where: { email },
     });
 
+    // Mensaje unificado para no filtrar si el email existe (mejor seguridad y UX)
+    const INVALID_CREDENTIALS = "Contraseña o correo incorrectos";
+
     if (!user) {
-      return res.status(400).json({ error: "Usuario no encontrado" });
+      return res.status(400).json({ error: INVALID_CREDENTIALS });
     }
 
     // 2️⃣ Comparar contraseña
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(400).json({ error: "Contraseña incorrecta" });
+      return res.status(400).json({ error: INVALID_CREDENTIALS });
     }
 
     // 3️⃣ Crear tokens
