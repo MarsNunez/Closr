@@ -3,11 +3,25 @@ import cloudinary from "../lib/cloudinary.js";
 
 export const createWork = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, tags: rawTags } = req.body;
     const file = req.file;
 
     if (!file) {
       return res.status(400).json({ error: "Image is required" });
+    }
+
+    // Parse tags: accept JSON string or plain comma-separated list
+    let tagNames = [];
+    if (rawTags) {
+      try {
+        const parsed = JSON.parse(rawTags);
+        tagNames = Array.isArray(parsed) ? parsed : [];
+      } catch {
+        tagNames = String(rawTags).split(",").map((t) => t.trim()).filter(Boolean);
+      }
+    }
+    if (tagNames.length > 10) {
+      return res.status(400).json({ error: "Maximum 10 tags allowed" });
     }
 
     const uploadPromise = new Promise((resolve, reject) => {
@@ -23,6 +37,14 @@ export const createWork = async (req, res) => {
 
     const result = await uploadPromise;
 
+    // Resolve tag IDs (only accept tags that exist in the DB)
+    const tagRecords = tagNames.length
+      ? await prisma.tag.findMany({
+          where: { name: { in: tagNames, mode: "insensitive" } },
+          select: { id: true },
+        })
+      : [];
+
     const work = await prisma.work.create({
       data: {
         title,
@@ -31,6 +53,12 @@ export const createWork = async (req, res) => {
         imageWidth: result.width ?? null,
         imageHeight: result.height ?? null,
         authorId: req.user.userId,
+        workTags: tagRecords.length
+          ? { create: tagRecords.map((t) => ({ tagId: t.id })) }
+          : undefined,
+      },
+      include: {
+        workTags: { include: { tag: true } },
       },
     });
 
@@ -43,6 +71,7 @@ export const createWork = async (req, res) => {
 function withInteractions(work, userId) {
   return {
     ...work,
+    tags: work.workTags?.map((wt) => wt.tag) ?? [],
     likedByMe: userId
       ? work.workLikes?.some((l) => l.userId === userId) ?? false
       : false,
@@ -54,6 +83,7 @@ function withInteractions(work, userId) {
 
 const workInclude = (userId) => ({
   author: { select: { id: true, username: true } },
+  workTags: { include: { tag: { select: { id: true, name: true } } } },
   ...(userId
     ? {
         workLikes: { where: { userId }, select: { userId: true } },
@@ -64,8 +94,26 @@ const workInclude = (userId) => ({
 
 export const getWorks = async (req, res) => {
   const userId = req.user?.userId ?? null;
+  const { search } = req.query;
+  const q = search?.trim();
+
   try {
+    const where = q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" } },
+            { description: { contains: q, mode: "insensitive" } },
+            {
+              workTags: {
+                some: { tag: { name: { contains: q, mode: "insensitive" } } },
+              },
+            },
+          ],
+        }
+      : undefined;
+
     const works = await prisma.work.findMany({
+      where,
       include: workInclude(userId),
       orderBy: { createdAt: "desc" },
     });

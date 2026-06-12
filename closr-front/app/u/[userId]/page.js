@@ -4,7 +4,7 @@ import { Avatar } from "../../components/Avatar";
 import { PostCard } from "../../components/PostCard";
 import { FollowButton } from "../../components/FollowButton";
 import { ProfileStats } from "../../components/ProfileStats";
-import { WorksMasonry } from "../../components/WorksMasonry";
+import { ProfileWorks } from "../../components/ProfileWorks";
 import { ProfileSavedWorks } from "../../components/ProfileSavedWorks";
 import { EmptyState } from "../../components/EmptyState";
 import { apiServerFetch } from "../../lib/api";
@@ -53,16 +53,7 @@ export default async function CreatorProfilePage({ params }) {
 
       <section className="mt-16">
         <h2 className="mb-6 text-lg font-semibold tracking-tight">Trabajos</h2>
-        {Array.isArray(works) && works.length > 0 ? (
-          <div className="px-0">
-            <WorksMasonry works={works} />
-          </div>
-        ) : (
-          <EmptyState
-            title="Sin trabajos por ahora"
-            description="Cuando este creador publique algo, aparecerá aquí."
-          />
-        )}
+        <ProfileWorks userId={user.id} serverWorks={works ?? []} />
       </section>
 
       <section className="mt-16">

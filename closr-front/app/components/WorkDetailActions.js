@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../providers/AuthProvider";
 import { useAuthModal } from "../providers/AuthModalProvider";
 import { apiRequest } from "../lib/api";
@@ -19,6 +19,19 @@ export function WorkDetailActions({
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [saved, setSaved] = useState(initialSaved);
   const [saveCount, setSaveCount] = useState(initialSaveCount);
+
+  // Re-fetch with auth token to get accurate likedByMe / savedByMe
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    apiRequest(`/works/${workId}`)
+      .then((work) => {
+        if (work?.likedByMe !== undefined) setLiked(work.likedByMe);
+        if (work?.savedByMe !== undefined) setSaved(work.savedByMe);
+        if (work?.likeCount !== undefined) setLikeCount(work.likeCount);
+        if (work?.saveCount !== undefined) setSaveCount(work.saveCount);
+      })
+      .catch(() => {});
+  }, [status, workId]);
   const [likeLoading, setLikeLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
 
@@ -80,7 +93,7 @@ export function WorkDetailActions({
         className={cn(
           "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all",
           saved
-            ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-800 dark:bg-brand-950/30 dark:text-brand-400"
+            ? "border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-900 dark:bg-[#0c1d13] dark:text-brand-400"
             : "border-[color:var(--border)] bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
         )}
       >

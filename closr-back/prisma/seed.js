@@ -8,6 +8,7 @@ const SEED_PASSWORD = "password123";
 
 async function reset() {
   console.log("🧹 Limpiando base de datos…");
+  await prisma.workTag.deleteMany();
   await prisma.workComment.deleteMany();
   await prisma.workSave.deleteMany();
   await prisma.workLike.deleteMany();
@@ -16,8 +17,84 @@ async function reset() {
   await prisma.post.deleteMany();
   await prisma.follow.deleteMany();
   await prisma.work.deleteMany();
+  await prisma.tag.deleteMany();
   await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
+}
+
+async function createTags() {
+  console.log("🏷️  Creando tags…");
+
+  const names = [
+    // Fotografía
+    "Fotografía", "Retrato", "Paisaje", "Arquitectura", "Fotografía callejera",
+    "Fotografía documental", "Fotografía de moda", "Fotografía de producto",
+    "Fotografía de viaje", "Fotografía en blanco y negro", "Fotografía aérea",
+    "Fotografía macro", "Fotografía nocturna", "Long exposure", "Film photography",
+    // Diseño
+    "Diseño gráfico", "Diseño editorial", "Diseño de identidad", "Branding",
+    "Tipografía", "Logotipo", "Packaging", "Diseño de carteles", "Infografía",
+    "Diseño web", "UI design", "UX design", "Motion graphics", "Diseño de iconos",
+    "Diseño de fuentes", "Grid design", "Color palette", "Diseño minimalista",
+    // Ilustración
+    "Ilustración", "Ilustración digital", "Ilustración editorial",
+    "Concept art", "Character design", "Fan art", "Cómic", "Manga",
+    "Storyboard", "Pixel art", "Vectorial", "Acuarela digital",
+    "Arte abstracto", "Arte surrealista", "Pop art", "Arte urbano",
+    // Arte tradicional
+    "Pintura", "Acuarela", "Óleo", "Acrílico", "Dibujo a lápiz",
+    "Tinta", "Carboncillo", "Grabado", "Escultura", "Cerámica",
+    "Arte textil", "Collage", "Instalación artística", "Arte conceptual",
+    // 3D y Motion
+    "3D art", "CGI", "Render", "Blender", "Cinema 4D", "Animación 3D",
+    "Motion design", "After Effects", "VFX", "Modelado 3D",
+    "Texturizado", "Iluminación 3D", "Animación 2D", "Storymotion",
+    // Moda y estilo
+    "Moda", "Estilismo", "Editorial de moda", "Street style",
+    "Diseño de ropa", "Joyería", "Accesorios", "Lookbook",
+    // Música y audio
+    "Música", "Producción musical", "Cover art", "Videoclip",
+    "DJ", "Arte sonoro", "Composición", "Beatmaking",
+    // Arquitectura e interiores
+    "Interior design", "Arquitectura moderna", "Arquitectura minimalista",
+    "Diseño de espacios", "Mobiliario", "Decoración", "Render arquitectónico",
+    "Paisajismo", "Arquitectura sostenible",
+    // Naturaleza y viajes
+    "Naturaleza", "Vida silvestre", "Flores", "Océano", "Montaña",
+    "Bosque", "Desierto", "Viajes", "Cultura", "Gastronomía",
+    // Cultura y lifestyle
+    "Lifestyle", "Fitness", "Yoga", "Skateboarding", "Surf",
+    "Tatuaje", "Graffiti", "Arte callejero", "Cultura urbana",
+    // Tecnología y digital
+    "Tecnología", "Inteligencia artificial", "Generative art",
+    "NFT art", "Data visualization", "Creative coding",
+    // Colores y estéticas
+    "Dark aesthetic", "Minimal", "Pastel", "Neon", "Vintage",
+    "Retro", "Futurista", "Cyberpunk", "Lo-fi", "Cottagecore",
+    "Bauhaus", "Art deco", "Art nouveau", "Brutalism",
+    // Medios y técnicas
+    "Fotografía analógica", "Doble exposición", "Bokeh", "Silhouette",
+    "Flat lay", "Overhead shot", "Timelapse", "Panorámica",
+    // Categorías generales
+    "Arte", "Creatividad", "Diseño", "Portafolio", "Proyecto personal",
+    "Trabajo en progreso", "Serie", "Colección", "Colaboración",
+    "Comisión", "Freelance", "Open to work", "Experimentación",
+    "Estudio", "Proceso creativo",
+  ];
+
+  // Deduplicate just in case
+  const unique = [...new Set(names)];
+
+  for (const name of unique) {
+    await prisma.tag.upsert({
+      where: { name },
+      update: {},
+      create: { name },
+    });
+  }
+
+  console.log(`   ✓ ${unique.length} tags creados`);
+  return await prisma.tag.findMany({ select: { id: true, name: true } });
 }
 
 async function createUsers() {
@@ -41,7 +118,7 @@ async function createUsers() {
   return users;
 }
 
-async function createWorks(users) {
+async function createWorks(users, tags = []) {
   console.log("🖼️  Creando trabajos…");
 
   const items = [
@@ -131,8 +208,15 @@ async function createWorks(users) {
     },
   ];
 
+  const shuffle = (arr) => arr.slice().sort(() => Math.random() - 0.5);
+
   const works = {};
   for (const item of items) {
+    // Assign 2–5 random tags per work
+    const selectedTags = tags.length
+      ? shuffle(tags).slice(0, 2 + Math.floor(Math.random() * 4))
+      : [];
+
     const work = await prisma.work.create({
       data: {
         title: item.title,
@@ -141,6 +225,9 @@ async function createWorks(users) {
         imageWidth: item.imageWidth,
         imageHeight: item.imageHeight,
         authorId: users[item.username].id,
+        workTags: selectedTags.length
+          ? { create: selectedTags.map((t) => ({ tagId: t.id })) }
+          : undefined,
       },
     });
     works[work.id] = work;
@@ -349,8 +436,9 @@ async function main() {
   console.log("🌱 Seed Closr — iniciando\n");
 
   await reset();
+  const tags = await createTags();
   const users = await createUsers();
-  const works = await createWorks(users);
+  const works = await createWorks(users, tags);
   const posts = await createPosts(users);
   await createFollows(users);
   await createLikesAndComments(users, posts);

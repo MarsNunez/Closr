@@ -180,9 +180,9 @@ export const deleteWorkComment = async (req, res) => {
 
 export const getSavedWorks = async (req, res) => {
   const { userId } = req.params;
+  const requesterId = req.user.userId;
 
-  // Only the owner can see their saved works
-  if (req.user.userId !== userId) {
+  if (requesterId !== userId) {
     return res.status(403).json({ error: "Not allowed" });
   }
 
@@ -193,13 +193,20 @@ export const getSavedWorks = async (req, res) => {
         work: {
           include: {
             author: { select: { id: true, username: true } },
+            workLikes: { where: { userId: requesterId }, select: { userId: true } },
+            workSaves: { where: { userId: requesterId }, select: { userId: true } },
           },
         },
       },
       orderBy: { createdAt: "desc" },
     });
 
-    const works = saves.map((s) => s.work);
+    const works = saves.map((s) => ({
+      ...s.work,
+      likedByMe: s.work.workLikes.length > 0,
+      savedByMe: true, // always true — this is the saved list
+    }));
+
     res.json(works);
   } catch {
     res.status(500).json({ error: "Error loading saved works" });

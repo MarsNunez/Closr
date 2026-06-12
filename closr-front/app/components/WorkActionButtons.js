@@ -78,7 +78,7 @@ export function WorkActionButtons({
           "flex h-7 w-7 items-center justify-center rounded-full shadow backdrop-blur-md transition-all duration-150",
           liked
             ? "bg-red-500/90 text-white hover:bg-red-600/90"
-            : "bg-black/30 text-white hover:bg-black/50",
+            : "bg-black/55 text-white hover:bg-black/70",
         )}
       >
         <HeartIcon filled={liked} className="h-3.5 w-3.5 shrink-0" />
@@ -93,7 +93,7 @@ export function WorkActionButtons({
           "flex h-7 w-7 items-center justify-center rounded-full shadow backdrop-blur-md transition-all duration-150",
           saved
             ? "bg-brand-600/90 text-white hover:bg-brand-700/90"
-            : "bg-black/30 text-white hover:bg-black/50",
+            : "bg-black/55 text-white hover:bg-black/70",
         )}
       >
         <BookmarkIcon filled={saved} className="h-3.5 w-3.5 shrink-0" />

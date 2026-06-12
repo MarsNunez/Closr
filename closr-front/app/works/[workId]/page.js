@@ -74,6 +74,20 @@ export default async function WorkDetailPage({ params }) {
             Publicado el {formatDate(work.createdAt)}
           </p>
 
+          {/* Tags */}
+          {Array.isArray(work.tags) && work.tags.length > 0 && (
+            <div className="mt-5 flex flex-wrap gap-1.5">
+              {work.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="rounded-full border border-[color:var(--border)] bg-muted px-3 py-1 text-xs font-medium text-muted-foreground"
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Like + Save action bar */}
           <WorkDetailActions
             workId={work.id}

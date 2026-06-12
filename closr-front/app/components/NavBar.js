@@ -9,6 +9,7 @@ import { Avatar } from "./Avatar";
 import { Button, LinkButton } from "./Button";
 import { Container } from "./Container";
 import { Logo } from "./Logo";
+import { NavSearch } from "./NavSearch";
 import { ThemeToggle } from "./ThemeToggle";
 import { cn } from "../lib/cn";
 
@@ -28,10 +29,10 @@ export function NavBar() {
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[color:var(--border)] bg-background/90 backdrop-blur-md">
-      <Container size="xl" className="flex h-[60px] items-center justify-between gap-4">
+      <Container size="xl" className="flex h-[60px] items-center gap-3">
 
         {/* Left — logo + nav */}
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           <Logo />
 
           {status === "authenticated" && (
@@ -54,8 +55,13 @@ export function NavBar() {
           )}
         </div>
 
+        {/* Center — search bar, fills all space between nav and right buttons */}
+        {status === "authenticated" && (
+          <NavSearch className="hidden sm:block flex-1" />
+        )}
+
         {/* Right */}
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex shrink-0 items-center gap-2">
           {status === "loading" ? (
             <div className="h-8 w-28 animate-pulse rounded-full bg-muted" />
           ) : status === "authenticated" && user ? (

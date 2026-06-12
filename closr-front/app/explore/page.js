@@ -1,7 +1,7 @@
 import { Container } from "../components/Container";
-import { WorksMasonry } from "../components/WorksMasonry";
 import { EmptyState } from "../components/EmptyState";
 import { LinkButton } from "../components/Button";
+import { ExploreWorks } from "../components/ExploreWorks";
 import { apiServerFetch } from "../lib/api";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,7 @@ export default async function ExplorePage() {
             />
           </Container>
         ) : (
-          <WorksMasonry works={works} />
+          <ExploreWorks serverWorks={works} />
         )}
       </div>
     </>

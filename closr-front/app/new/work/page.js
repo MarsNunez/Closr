@@ -7,12 +7,14 @@ import { AuthGuard } from "../../components/AuthGuard";
 import { Button } from "../../components/Button";
 import { Container } from "../../components/Container";
 import { Field, Input, Textarea } from "../../components/Input";
+import { TagPicker } from "../../components/TagPicker";
 import { apiRequest } from "../../lib/api";
 
 function NewWorkForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [tags, setTags] = useState([]);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
   const [error, setError] = useState("");
@@ -39,6 +41,9 @@ function NewWorkForm() {
       formData.append("title", title.trim());
       if (description.trim()) formData.append("description", description.trim());
       formData.append("image", file);
+      if (tags.length > 0) {
+        formData.append("tags", JSON.stringify(tags.map((t) => t.name)));
+      }
 
       const work = await apiRequest("/works", {
         method: "POST",
@@ -83,6 +88,13 @@ function NewWorkForm() {
               rows={5}
               placeholder="Cuenta el contexto detrás del trabajo"
             />
+          </Field>
+
+          <Field
+            label="Tags"
+            hint={`Máximo 10 · Escribe para buscar`}
+          >
+            <TagPicker value={tags} onChange={setTags} />
           </Field>
 
           <Field label="Imagen" error={error || undefined}>
@@ -132,6 +144,24 @@ function NewWorkForm() {
               </div>
             )}
           </div>
+
+          {tags.length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs uppercase tracking-wide text-muted-foreground">
+                Tags seleccionados
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-800 dark:bg-brand-900/40 dark:text-brand-300"
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </aside>
       </form>
     </Container>

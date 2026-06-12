@@ -5,6 +5,7 @@ import postRoutes from "./routes/post.routes.js";
 import followRoutes from "./routes/follow.routes.js";
 import workRoutes from "./routes/work.routes.js";
 import feedRoutes from "./routes/feed.routes.js";
+import tagRoutes from "./routes/tag.routes.js";
 
 import express from "express";
 import cors from "cors";
@@ -47,6 +48,7 @@ app.use("/api/posts", postRoutes);
 app.use("/api/follows", followRoutes);
 app.use("/api/works", workRoutes);
 app.use("/api/feed", feedRoutes);
+app.use("/api/tags", tagRoutes);
 
 const PORT = 3001;
 
